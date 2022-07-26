@@ -1,0 +1,39 @@
+
+FROM alpine:latest
+
+ENV SCALA_VERSION=2.13.8 SCALA_HOME=/opt/scala SBT_HOME=/opt/sbt
+
+RUN apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
+    apk add --no-cache bash curl jq vim
+
+RUN wget -O /etc/apk/keys/amazoncorretto.rsa.pub  https://apk.corretto.aws/amazoncorretto.rsa.pub
+RUN cat /etc/apk/repositories
+# RUN echo "https://apk.corretto.aws/" >> /etc/apk/repositories
+# RUN apk update
+# RUN apk add amazon-corretto-17
+
+WORKDIR /opt
+
+RUN cd "/tmp" && \
+    wget --no-verbose "https://downloads.typesafe.com/scala/${SCALA_VERSION}/scala-${SCALA_VERSION}.tgz" && \
+    tar xzf "scala-${SCALA_VERSION}.tgz" && \
+    mkdir "${SCALA_HOME}" && \
+    rm "/tmp/scala-${SCALA_VERSION}/bin/"*.bat && \
+    mv "/tmp/scala-${SCALA_VERSION}/bin" "/tmp/scala-${SCALA_VERSION}/lib" "${SCALA_HOME}" && \
+    ln -s "${SCALA_HOME}/bin/"* "/usr/bin/" && \
+    apk del .build-dependencies && \
+    rm -rf "/tmp/"*
+ 
+# To also add sbt...
+#RUN export PATH="/opt/sbt/bin:$PATH" && \
+#      apk update && apk add ca-certificates wget tar && \
+#      mkdir -p "/opt/sbt" && \
+#      wget -qO - --no-check-certificate "https://cocl.us/sbt-0.13.16.tgz" | tar xz -C /usr/local/sbt --strip-components=1 && \
+#      sbt sbtVersion
+
+WORKDIR /wrk
+
+COPY bash_profile .bash_profile
+
+CMD sleep 120
+

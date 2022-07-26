@@ -1,0 +1,34 @@
+
+FROM amazoncorretto:17-alpine-full
+
+ENV SCALA_VERSION=2.13.8 SCALA_HOME=/opt/scala SBT_HOME=/opt/sbt
+
+WORKDIR /opt
+
+RUN apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
+    apk add --no-cache bash curl jq vim && \
+    cd "/tmp" && \
+    wget --no-verbose "https://downloads.typesafe.com/scala/${SCALA_VERSION}/scala-${SCALA_VERSION}.tgz" && \
+    tar xzf "scala-${SCALA_VERSION}.tgz" && \
+    mkdir "${SCALA_HOME}" && \
+    rm "/tmp/scala-${SCALA_VERSION}/bin/"*.bat && \
+    mv "/tmp/scala-${SCALA_VERSION}/bin" "/tmp/scala-${SCALA_VERSION}/lib" "${SCALA_HOME}" && \
+    ln -s "${SCALA_HOME}/bin/"* "/usr/bin/" && \
+    apk del .build-dependencies && \
+    rm -rf "/tmp/"*
+ 
+# To also add sbt...
+RUN export PATH="${SBT_HOME}/bin:$PATH" && \
+      apk add unzip tar && \
+      cd /opt && \
+      wget -qO /tmp/sbt.zip --no-check-certificate "https://github.com/sbt/sbt/releases/download/v1.7.1/sbt-1.7.1.zip" && \
+      unzip /tmp/sbt.zip && \
+      rm /tmp/sbt.zip
+      # sbt sbtVersion
+
+WORKDIR /wrk
+
+COPY bash_profile .bash_profile
+
+CMD sleep 120
+

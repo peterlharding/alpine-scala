@@ -1,2 +1,22 @@
+
+# Java
 *.class
 *.log
+
+# Archives
+*.gz
+*.tar
+*.tz
+*.zip
+
+# IDEs
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Just ignore
+*.x
+*.ignore
+

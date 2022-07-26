@@ -1,0 +1,33 @@
+
+FROM amazoncorretto:17
+
+ENV SCALA_VERSION=2.13.8 SCALA_HOME=/opt/scala SBT_HOME=/opt/sbt
+
+RUN yum -y update && yum -y install wget ca-certificates curl gzip jq tar unzip vim
+
+WORKDIR /opt
+
+RUN cd /tmp && \
+    wget --no-verbose "https://downloads.typesafe.com/scala/${SCALA_VERSION}/scala-${SCALA_VERSION}.tgz" && \
+    ls -l && \
+    tar xzf "/tmp/scala-${SCALA_VERSION}.tgz"  && \
+    mkdir "${SCALA_HOME}" && \
+    rm "/tmp/scala-${SCALA_VERSION}/bin/"*.bat && \
+    mv "/tmp/scala-${SCALA_VERSION}/bin" "/tmp/scala-${SCALA_VERSION}/lib" "${SCALA_HOME}" && \
+    ln -s "${SCALA_HOME}/bin/"* "/usr/bin/" && \
+    rm -rf /tmp/*.tgz
+ 
+# To also add sbt - the Scala build tool
+
+RUN export PATH="/opt/sbt/bin:$PATH" && \
+    wget -qO /tmp/sbt.zip --no-check-certificate "https://github.com/sbt/sbt/releases/download/v1.7.1/sbt-1.7.1.zip" && \
+    cd /opt && \
+    unzip /tmp/sbt.zip
+    # sbt sbtVersion
+
+WORKDIR /wrk
+
+COPY bash_profile .bash_profile
+
+CMD sleep 120
+
